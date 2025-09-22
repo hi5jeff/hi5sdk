@@ -18,6 +18,7 @@ const _Hi5 = {
 	    RESTART_GAME: "RESTART_GAME", // 게임 재시작
         SOUND : "SOUND",  // 
         RANK_DATA : "RANK_DATA", 
+    	GAME_SETTINGS : "GAME_SETTINGS", 
         
     },
     MainMenuType:{
