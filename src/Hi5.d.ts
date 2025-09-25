@@ -25,11 +25,15 @@ declare const _Hi5: {
         score: number;
     };
     UserData: {};
+    current_time: number;
+    callback: any;
     Init_GameData(localGameData: any): void;
     Init_OnMessage(callback: any): void;
     Init_SDK(callback: any, localGameData: any): void;
+    _OnMessage(event: any): void;
     getItem(key: any): any;
     setItem(key: any, value: any): void;
+    getTime(): any;
     LoadEnd(): void;
     GameStart(): void;
     GameEnd(): void;

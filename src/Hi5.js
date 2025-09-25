@@ -29,79 +29,61 @@ const _Hi5 = {
         // 기타 데이타
     },
     UserData: {},
+    current_time: 0,
+    callback: null,
     // Init_SDK 으로 한번에 초기화 할수 없는 상황 . 
     // 먼저 저장하는 데이터 구조 초기화 , 다음 onMessage 콜백 함수 초기화 .
     Init_GameData(localGameData) {
         window['Hi5'] = this;
+        this.current_time = Math.round(new Date().getTime() / 1000);
         for (let key in localGameData) {
             this.GameData[key] = localGameData[key];
         }
     },
     Init_OnMessage(callback) {
-        window['Hi5'] = this;
-        // 
+        this.callback = callback;
         window.addEventListener('message', (event) => {
-            if (!event.data)
-                return;
-            if (!event.data.action)
-                return;
-            // console.log('Message received:', event.data);
-            // console.log('Is trusted:', event.isTrusted);
-            if (event.data.action == this.MESSAGE.GAME_DATA) {
-                if (event.data.data.game_data) {
-                    this.GameData = event.data.data.game_data; //
-                }
-                if (event.data.data.game_data) {
-                    this.UserData = event.data.data.user_data; //
-                }
-            }
-            else if (event.data.action == this.MESSAGE.SOUND) {
-                if (event.data.data.sound) {
-                    this.GameData.sound = event.data.data.sound; //
-                }
-                setTimeout(() => {
-                    this.SaveData(); //
-                }, 100);
-            }
-            callback(event.data);
+            this._OnMessage(event);
         });
-        //
         this.PostMessage(this.MESSAGE.INIT_SDK, this.GameData);
     },
-    // Hi5Game SDK 통신 Start
+    // Hi5Game SDK 초기화
     Init_SDK(callback, localGameData) {
-        window['Hi5'] = this;
-        for (let key in localGameData) {
-            this.GameData[key] = localGameData[key];
+        this.Init_GameData(localGameData);
+        this.Init_OnMessage(callback);
+    },
+    // on message 내부 처리.
+    _OnMessage(event) {
+        if (!event.data)
+            return;
+        if (!event.data.action)
+            return;
+        // console.log('Message received:', event.data);
+        // console.log('Is trusted:', event.isTrusted);
+        if (event.data.action == this.MESSAGE.GAME_DATA) {
+            if (event.data.data.game_data) {
+                this.GameData = event.data.data.game_data; //
+            }
+            if (event.data.data.user_data) {
+                this.UserData = event.data.data.user_data; //
+            }
+            if (event.data.data.current_time) {
+                // 서버 초 단위 타임.
+                this.current_time = event.data.data.current_time; //
+                setInterval(() => {
+                    this.current_time++; //
+                }, 1000);
+            }
         }
-        // 
-        window.addEventListener('message', (event) => {
-            if (!event.data)
-                return;
-            if (!event.data.action)
-                return;
-            // console.log('Message received:', event.data);
-            // console.log('Is trusted:', event.isTrusted);
-            if (event.data.action == this.MESSAGE.GAME_DATA) {
-                if (event.data.data.game_data) {
-                    this.GameData = event.data.data.game_data; //
-                }
-                if (event.data.data.game_data) {
-                    this.UserData = event.data.data.user_data; //
-                }
+        else if (event.data.action == this.MESSAGE.SOUND) {
+            if (event.data.data.sound) {
+                this.GameData.sound = event.data.data.sound; //
             }
-            else if (event.data.action == this.MESSAGE.SOUND) {
-                if (event.data.data.sound) {
-                    this.GameData.sound = event.data.data.sound; //
-                }
-                setTimeout(() => {
-                    this.SaveData(); //
-                }, 100);
-            }
-            callback(event.data);
-        });
-        //
-        this.PostMessage(this.MESSAGE.INIT_SDK, this.GameData);
+            setTimeout(() => {
+                this.SaveData(); //
+            }, 100);
+        }
+        this.callback(event.data);
     },
     // localStorage
     getItem(key) {
@@ -109,6 +91,10 @@ const _Hi5 = {
     },
     setItem(key, value) {
         this.GameData[key] = value;
+    },
+    // 서버 기준 초 단위 타임 리턴.
+    getTime() {
+        return this.current_time;
     },
     //Message_
     LoadEnd() {
