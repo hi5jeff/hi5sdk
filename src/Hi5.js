@@ -39,6 +39,9 @@ const _Hi5 = {
         for (let key in localGameData) {
             this.GameData[key] = localGameData[key];
         }
+        setInterval(() => {
+            this.current_time++; //
+        }, 1000);
     },
     Init_OnMessage(callback) {
         this.callback = callback;
@@ -70,9 +73,6 @@ const _Hi5 = {
             if (event.data.data.current_time) {
                 // 서버 초 단위 타임.
                 this.current_time = event.data.data.current_time; //
-                setInterval(() => {
-                    this.current_time++; //
-                }, 1000);
             }
         }
         else if (event.data.action == this.MESSAGE.SOUND) {
