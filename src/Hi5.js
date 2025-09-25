@@ -17,6 +17,7 @@ const _Hi5 = {
         RESTART_GAME: "RESTART_GAME", // 게임 재시작
         SOUND: "SOUND", // 
         RANK_DATA: "RANK_DATA",
+        GAME_SETTINGS: "GAME_SETTINGS",
     },
     MainMenuType: {
         GAME_FIRST: "GAME_FIRST",
@@ -28,6 +29,45 @@ const _Hi5 = {
         // 기타 데이타
     },
     UserData: {},
+    // Init_SDK 으로 한번에 초기화 할수 없는 상황 . 
+    // 먼저 저장하는 데이터 구조 초기화 , 다음 onMessage 콜백 함수 초기화 .
+    Init_GameData(localGameData) {
+        window['Hi5'] = this;
+        for (let key in localGameData) {
+            this.GameData[key] = localGameData[key];
+        }
+    },
+    Init_OnMessage(callback) {
+        window['Hi5'] = this;
+        // 
+        window.addEventListener('message', (event) => {
+            if (!event.data)
+                return;
+            if (!event.data.action)
+                return;
+            // console.log('Message received:', event.data);
+            // console.log('Is trusted:', event.isTrusted);
+            if (event.data.action == this.MESSAGE.GAME_DATA) {
+                if (event.data.data.game_data) {
+                    this.GameData = event.data.data.game_data; //
+                }
+                if (event.data.data.game_data) {
+                    this.UserData = event.data.data.user_data; //
+                }
+            }
+            else if (event.data.action == this.MESSAGE.SOUND) {
+                if (event.data.data.sound) {
+                    this.GameData.sound = event.data.data.sound; //
+                }
+                setTimeout(() => {
+                    this.SaveData(); //
+                }, 100);
+            }
+            callback(event.data);
+        });
+        //
+        this.PostMessage(this.MESSAGE.INIT_SDK, this.GameData);
+    },
     // Hi5Game SDK 통신 Start
     Init_SDK(callback, localGameData) {
         window['Hi5'] = this;

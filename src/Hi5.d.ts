@@ -14,6 +14,7 @@ declare const _Hi5: {
         RESTART_GAME: string;
         SOUND: string;
         RANK_DATA: string;
+        GAME_SETTINGS: string;
     };
     MainMenuType: {
         GAME_FIRST: string;
@@ -24,6 +25,8 @@ declare const _Hi5: {
         score: number;
     };
     UserData: {};
+    Init_GameData(localGameData: any): void;
+    Init_OnMessage(callback: any): void;
     Init_SDK(callback: any, localGameData: any): void;
     getItem(key: any): any;
     setItem(key: any, value: any): void;
